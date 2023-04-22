@@ -15,7 +15,7 @@ city_value = StringVar()
 state_value = StringVar()
 
 def showWeather():
-    api_key = "7dd58fe2fd4c839920ff92189d790c0c"
+    api_key = ""
     city_name=city_value.get()
     state_code = state_value.get()
     weather_url='http://api.openweathermap.org/data/2.5/weather?q=' + city_name + ',' + state_code + ',840&appid='+api_key
