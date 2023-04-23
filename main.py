@@ -1,21 +1,34 @@
 from tkinter import *
-import json
+from tkinter import ttk
 from datetime import datetime
 import requests
 from weatherdataclass import *
+import mysecrets
 
 # Initialize Window
 
 root = Tk()
-root.geometry("400x400")
+root.geometry("400x500")
 root.resizable(0,0)
 root.title("Garden water notifier")
+notebook = ttk.Notebook(root)
+notebook.pack(pady=5, expand=True)
+
+# create frames
+frame1 = ttk.Frame(notebook, width=400, height=280)
+frame2 = ttk.Frame(notebook, width=400, height=280)
+
+frame1.pack(fill='both', expand=True)
+frame2.pack(fill='both', expand=True)
+
+notebook.add(frame1,text="Current Weather")
+notebook.add(frame2,text="WaterTime")
 
 city_value = StringVar()
 state_value = StringVar()
 
 def showWeather():
-    api_key = ""
+    api_key = mysecrets.api_key
     city_name=city_value.get()
     state_code = state_value.get()
     weather_url='http://api.openweathermap.org/data/2.5/weather?q=' + city_name + ',' + state_code + ',840&appid='+api_key
@@ -33,19 +46,19 @@ def showWeather():
 
     tfield.insert(INSERT, weather)
 
-city_head= Label(root, text = 'Enter City Name', font = 'Arial 12 bold').pack(pady=10) #to generate label heading
+city_head= Label(frame1, text = 'Enter City Name', font = 'Arial 12 bold').pack(pady=10) #to generate label heading
  
-inp_city = Entry(root, textvariable = city_value,  width = 24, font='Arial 14 bold').pack() #entry field
+inp_city = Entry(frame1, textvariable = city_value,  width = 24, font='Arial 14 bold').pack() #entry field
 
-state_head = Label(root, text = 'Enter State Code', font = 'Arial 12 bold').pack(pady=10)
+state_head = Label(frame1, text = 'Enter State Code', font = 'Arial 12 bold').pack(pady=10)
 
-inp_state = Entry(root, textvariable = state_value,  width = 24, font='Arial 14 bold').pack()
+inp_state = Entry(frame1, textvariable = state_value,  width = 24, font='Arial 14 bold').pack()
 
-Button(root, command = showWeather, text = "Check Weather", font="Arial 10", bg='lightblue', fg='black', activebackground="teal", padx=5, pady=5 ).pack(pady= 20)
+Button(frame1, command = showWeather, text = "Check Weather", font="Arial 10", bg='lightblue', fg='black', activebackground="teal", padx=5, pady=5 ).pack(pady= 20)
 
-weather_now = Label(root, text = "The Weather is: ", font = 'arial 12 bold').pack(pady=10)
+weather_now = Label(frame1, text = "The Weather is: ", font = 'arial 12 bold').pack(pady=10)
  
-tfield = Text(root, width=46, height=10)
+tfield = Text(frame1, width=46, height=10)
 tfield.pack()
 
 root.mainloop()

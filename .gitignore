@@ -1,3 +1,5 @@
 __pycache__
 bin
 lib*
+mysecrets.py
+pyenv.cfg
