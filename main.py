@@ -46,6 +46,7 @@ def showWeather():
 
     tfield.insert(INSERT, weather)
 
+# frame 1
 city_head= Label(frame1, text = 'Enter City Name', font = 'Arial 12 bold').pack(pady=10) #to generate label heading
  
 inp_city = Entry(frame1, textvariable = city_value,  width = 24, font='Arial 14 bold').pack() #entry field
@@ -59,6 +60,10 @@ Button(frame1, command = showWeather, text = "Check Weather", font="Arial 10", b
 weather_now = Label(frame1, text = "The Weather is: ", font = 'arial 12 bold').pack(pady=10)
  
 tfield = Text(frame1, width=46, height=10)
+tfield.pack()
+
+# frame 2
+tfield2 = Text(frame2,width=46, height=10)
 tfield.pack()
 
 root.mainloop()
