@@ -4,6 +4,8 @@ from datetime import datetime
 import requests
 from weatherdataclass import *
 import mysecrets
+import geodata
+import forecast
 
 # Initialize Window
 
@@ -27,11 +29,14 @@ notebook.add(frame2,text="WaterTime")
 city_value = StringVar()
 state_value = StringVar()
 
+
 def showWeather():
-    api_key = mysecrets.api_key
-    city_name=city_value.get()
+    city_name = city_value.get()
     state_code = state_value.get()
-    weather_url='http://api.openweathermap.org/data/2.5/weather?q=' + city_name + ',' + state_code + ',840&appid='+api_key
+    geo = geodata.geo_data(city_name,state_code,840)
+
+    api_key = mysecrets.api_key
+    weather_url=f'https://api.openweathermap.org/data/2.5/weather?lat={geo.lat}&lon={geo.lon}&appid={api_key}'
 
     response=requests.get(weather_url)
     weather_info=response.json()
@@ -39,12 +44,18 @@ def showWeather():
     tfield.delete("1.0","end")
 
     if weather_info['cod'] == 200:
-        weatherdata = WeatherData(weather_info,city_name)
+        weatherdata = WeatherData(weather_info,geo.city_name)
         weather = weatherdata.print()
     else:
-        weather = f"\n\tWeather for '{city_name}' not found!\n\tKindly Enter valid City Name !!"
+        weather = f"\n\tWeather for '{geo.city_name}' not found!\n\tKindly Enter valid City Name !!"
 
     tfield.insert(INSERT, weather)
+
+    # forecast data
+    fore = forecast.forecast_data(geo)
+
+    tfield2.insert(INSERT,fore)
+
 
 # frame 1
 city_head= Label(frame1, text = 'Enter City Name', font = 'Arial 12 bold').pack(pady=10) #to generate label heading
@@ -64,6 +75,6 @@ tfield.pack()
 
 # frame 2
 tfield2 = Text(frame2,width=46, height=10)
-tfield.pack()
+tfield2.pack()
 
 root.mainloop()
