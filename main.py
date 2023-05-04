@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-from datetime import datetime
 import requests
 from weatherdataclass import *
 import mysecrets
@@ -54,7 +53,7 @@ def showWeather():
     # forecast data
     fore = forecast.forecast_data(geo)
 
-    tfield2.insert(INSERT,fore)
+    tfield2.insert(INSERT,fore.when_to_water())
 
 
 # frame 1
