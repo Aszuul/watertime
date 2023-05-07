@@ -20,10 +20,17 @@ class forecast_data:
 
     def when_to_water(self):
         today = datetime.now()
+        res = ''
         for w in self.forecast:
             if w.weather == "Rain":
                 rain_in = str(w.day - today)
-                res = f"rain in {rain_in} days"
+                if (w.day - today) < timedelta(days=2):
+                    res = f"rain in {rain_in}. You may be able to wait."
+                else:
+                    res = f"rain in {rain_in}. You should water."
+                break
+            else:
+                res = "No rain expected in the next 5 days. You should water."
 
         return res
 
@@ -34,3 +41,4 @@ class daily_data:
     
     def print(self):
         return f"{self.day.strftime('%a %d %b %Y, %H:%M')}: Weather is {self.weather}"
+    

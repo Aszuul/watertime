@@ -52,7 +52,7 @@ def showWeather():
 
     # forecast data
     fore = forecast.forecast_data(geo)
-
+    tfield2.delete("1.0","end")
     tfield2.insert(INSERT,fore.when_to_water())
 
 
