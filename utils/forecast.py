@@ -1,5 +1,5 @@
 import requests
-import mysecrets
+import secrets.mysecrets as mysecrets
 from datetime import *
 
 class forecast_data:

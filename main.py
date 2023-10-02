@@ -1,10 +1,11 @@
 from tkinter import *
 from tkinter import ttk
 import requests
-from weatherdataclass import *
-import mysecrets
-import geodata
-import forecast
+from utils.weatherdataclass import *
+import secrets.mysecrets as mysecrets
+import utils.geodata as geodata
+import utils.forecast as forecast
+import waterwarning
 
 # Initialize Window
 
@@ -27,12 +28,17 @@ notebook.add(frame2,text="WaterTime")
 
 city_value = StringVar()
 state_value = StringVar()
+inUS = TRUE
+country_code = IntVar()
 
 
 def showWeather():
     city_name = city_value.get()
     state_code = state_value.get()
-    geo = geodata.geo_data(city_name,state_code,840)
+    if(inUS):
+        geo = geodata.geo_data.us(city_name,state_code)
+    else:
+        geo = geodata.geo_data(city_name,country_code)
 
     api_key = mysecrets.api_key
     weather_url=f'https://api.openweathermap.org/data/2.5/weather?lat={geo.lat}&lon={geo.lon}&appid={api_key}'
@@ -46,14 +52,17 @@ def showWeather():
         weatherdata = WeatherData(weather_info,geo.city_name)
         weather = weatherdata.print()
     else:
-        weather = f"\n\tWeather for '{geo.city_name}' not found!\n\tKindly Enter valid City Name !!"
+        weather = f"\n\tWeather for '{geo.city_name}' not found!\n\Please Enter valid City Name !!"
 
     tfield.insert(INSERT, weather)
 
     # forecast data
     fore = forecast.forecast_data(geo)
     tfield2.delete("1.0","end")
-    tfield2.insert(INSERT,fore.when_to_water())
+    when = fore.when_to_water()
+    tfield2.insert(INSERT,when)
+
+    # waterwarning.popup(when)
 
 
 # frame 1

@@ -1,5 +1,6 @@
 __pycache__
 bin
 lib*
-mysecrets.py
+*/mysecrets.py
 pyenv.cfg
+.venv
