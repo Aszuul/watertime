@@ -2,12 +2,21 @@
 {% block title %}PracticeTime{% endblock %}
 {% block content %}
 {% if not current_user.is_authenticated: %}
-    <h2>Log in to load weather data.</h2>
+    <h2 class="weather">Log in to load weather data.</h2>
 {% endif %}
 {% if weather: %}
-<div class="container">
-    {{ weather }}
+<div class="container-fluid text-center weather">
+    <div class="row justify-content-start">
+        <div class="col-2">
+            <h3>{{ weather.city }}, {{ weather.state }}</h3>
+            <p>{{ weather.temp }}°</p>
+        </div>
+        <div class="col-2">
+            <h4>{{ weather.description }}</h4>
+        </div>
+    </div>
 </div>
 {% endif %}
+
 {% endblock %}
 

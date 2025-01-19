@@ -9,12 +9,14 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, RegisterForm
 from flask_bootstrap import Bootstrap5
+from flask_caching import Cache
 
 app = Flask("__main__")
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 login_manager = LoginManager()
 login_manager.init_app(app)
 bootstrap = Bootstrap5(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 DB_URI = os.environ.get("SQLALCHEMY_DB_URI")
@@ -38,20 +40,20 @@ class User(db.Model, UserMixin):
     lat: Mapped[float] = mapped_column(Float)
     lon: Mapped[float] = mapped_column(Float)
 
-    def get_geodata(self):
-        if self.state:
-            res = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={self.city},{self.state},{self.country_code}&limit=1&appid={WEATHER_API_KEY}").json()
-        else:
-            res = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={self.city},{self.country_code}&limit=1&appid={WEATHER_API_KEY}").json()
-        self.lat = res[0]["lat"]
-        self.lon = res[0]["lon"]
+def get_geodata(city, state, country_code):
+    if state:
+        res = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={city},{state},{country_code}&limit=1&appid={WEATHER_API_KEY}").json()
+    else:
+        res = requests.get(f"http://api.openweathermap.org/geo/1.0/direct?q={city},{country_code}&limit=1&appid={WEATHER_API_KEY}").json()
+    lat = res[0]["lat"]
+    lon = res[0]["lon"]
+    return [lat, lon]
 
 class Plant(db.Model):
     __tablename__ = "plants"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True)
     symbol: Mapped[str] = mapped_column(String(100))
-
 
 
 with app.app_context():
@@ -61,15 +63,19 @@ with app.app_context():
 def load_user(user_id):
     return db.get_or_404(User, user_id)
 
-
+# @cache.cached(timeout=3600, key_prefix=current_user.name))
 def get_weather():
-    if not current_user.lat:
-        current_user.get_geodata()
     weather_url=f'https://api.openweathermap.org/data/2.5/weather?lat={current_user.lat}&lon={current_user.lon}&appid={WEATHER_API_KEY}'
     response = requests.get(weather_url)
     response.raise_for_status()
     data = response.json()
-    return data
+    weather = {
+        "city": current_user.city,
+        "state": current_user.state,
+        "temp": int((data['main']['temp'] - 273) * 9/5 + 32),
+        "description": data['weather'][0]['description'],
+    }
+    return weather
 
 
 @app.route('/')
@@ -95,7 +101,9 @@ def register():
             name=form.name.data.title(),
             city=form.city.data,
             state=form.state.data,
-            country_code=form.country_code.data
+            country_code=form.country_code.data,
+            lat = get_geodata(city=form.city.data, state=form.state.data, country_code=form.country_code.data)[0],
+            lon = get_geodata(city=form.city.data, state=form.state.data, country_code=form.country_code.data)[1]
         )
         db.session.add(user)
         db.session.commit()
